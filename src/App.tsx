@@ -96,8 +96,8 @@ const MainApp: React.FC <MainAppProps> = ({ cartItems, setCartItems, user }) => 
         return;
       }
     
-      console.log(product);
-      console.log(`${localStorage.getItem('userToken')}`);
+      // console.log(product);
+      // console.log(`${localStorage.getItem('userToken')}`);
     
     
       var res = await axios.post("http://localhost:5000/api/cart/add", {
@@ -108,9 +108,12 @@ const MainApp: React.FC <MainAppProps> = ({ cartItems, setCartItems, user }) => 
               Authorization: `Bearer ${localStorage.getItem('userToken')}`,
               'Content-Type': 'application/json'
           }
+      }).then((val:any)=>{
+        console.log("✅ Backend Response:", val?.data);
+      }).catch(err => {console.log("error adding to cart : "+err);
       });
-
-    console.log("✅ Backend Response:", res.data);
+  
+    
   } catch (error : any) {
     console.error("❌ Error sending to backend:", error.response?.data || error.message);
   }

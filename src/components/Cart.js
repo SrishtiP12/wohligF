@@ -1,10 +1,35 @@
 import React, { useState } from "react";
 import StripeCheckoutWrapper from "./StripeCheckoutWrapper";
 import PropTypes from "prop-types";
+import axios from "axios";
 
 export default function Cart({ items = [], setCartItems }) {
-  const [showStripe, setShowStripe] = useState(false);
+  const [showStripe, setShowStripe] = useState(true);
   const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+  const handleCheckout = async()=>{
+
+    try {
+      var res = await axios.post("http://localhost:5000/api/payments/create-payment-intent", {
+                // your request body
+                amount : total,
+                currency : "inr"
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('userToken')}`,
+                    'Content-Type': 'application/json'
+                }
+            }).then((val)=>{
+              console.log("✅ Backend Response:", val?.data);
+            }).catch(err => {console.log("error adding to cart : "+err);
+            });
+    } catch (error) {
+      console.log("error handleCheckout : "+error);
+      
+    }
+    setCartItems([])
+  }
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-white font-['Montserrat']">
@@ -41,7 +66,7 @@ export default function Cart({ items = [], setCartItems }) {
               <button
                 className="w-full bg-green-700 text-white py-4 rounded-lg font-bold text-lg hover:bg-green-800 transition shadow"
                 onClick={() => {
-                  setShowStripe(true);
+                  handleCheckout();
                 }}
               >
                 Checkout
