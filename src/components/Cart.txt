@@ -1,0 +1,195 @@
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const Cart = () => {
+  const [cartItems, setCartItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
+
+  const API_BASE = 'http://localhost:3000/api/cart';
+
+  // Fetch cart from backend
+  const fetchCart = async () => {
+    console.log("cart Component");
+    
+    try {
+      console.log("try cart component");
+      
+      setLoading(true);
+      console.log(`Bearer ${localStorage.getItem('token')}`);
+      const res = await axios.get(API_BASE, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      
+      console.log(res.data.items);
+      
+      setCartItems(res.data.items || []);
+      console.log("CartItems : "+cartItems);
+      
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+      setMessage('⚠️ Failed to load cart.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Update quantity of a product in cart
+  const updateQuantity = async (productId, qty) => {
+    if (qty < 1) return;
+    try {
+      await axios.put(
+        `${API_BASE}/update`,
+        { productId, qty },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }
+      );
+      fetchCart();
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+    }
+  };
+
+  // Remove item from cart
+  const removeItem = async (productId) => {
+    try {
+      await axios.delete(`${API_BASE}/remove/${productId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      fetchCart();
+    } catch (error) {
+      console.error('Error removing item:', error);
+    }
+  };
+
+  // Clear all cart items
+  const clearCart = async () => {
+    try {
+      await axios.delete(`${API_BASE}/clear`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      fetchCart();
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+    }
+  };
+
+  // Dummy checkout (can integrate payment later)
+  const checkout = async () => {
+    try {
+      setMessage('✅ Checkout successful!');
+      await clearCart();
+    } catch (error) {
+      console.error('Error during checkout:', error);
+    }
+  };
+
+  // Calculate total price
+  const getTotal = () => {
+    return cartItems.reduce(
+      (total, item) => total + item.quantity * item.product.price,
+      0
+    );
+  };
+
+  useEffect(() => {
+    fetchCart();
+  }, []);
+
+
+  console.log(loading);
+  console.log(cartItems.length);
+  
+  
+
+  if (loading) {
+    return <p className="text-center mt-10 text-xl">Loading cart...</p>;
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <h2 className="text-3xl font-bold mb-6">🛒 Your Shopping Cart</h2>
+
+      {message && (
+        <div className="bg-green-100 text-green-800 px-4 py-2 rounded mb-6">
+          {message}
+        </div>
+      )}
+
+      {cartItems.length === 0 ? (
+        <p className="text-gray-600">Your cart is empty.</p>
+      ) : (
+        <>
+          <div className="space-y-6">
+            {cartItems.map((item) => (
+              <div
+                key={item.product._id}
+                className="flex justify-between items-start border-b pb-4"
+              >
+                <div>
+                  <h3 className="text-xl font-semibold">{item.product.name}</h3>
+                  <p className="text-gray-600">Price: ₹{item.product.price}</p>
+                  <div className="mt-2 flex items-center">
+                    <label className="mr-2">Qty:</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={item.quantity}
+                      onChange={(e) =>
+                        updateQuantity(item.product._id, parseInt(e.target.value))
+                      }
+                      className="border px-2 py-1 rounded w-20"
+                    />
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-lg font-semibold">
+                    ₹{item.quantity * item.product.price}
+                  </p>
+                  <button
+                    onClick={() => removeItem(item.product._id)}
+                    className="mt-2 text-red-600 hover:underline"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Total + Actions */}
+          <div className="mt-8 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-xl font-bold">
+              Total: ₹{getTotal().toLocaleString('en-IN')}
+            </p>
+            <div className="mt-4 md:mt-0 space-x-4">
+              <button
+                onClick={clearCart}
+                className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700"
+              >
+                Clear Cart
+              </button>
+              <button
+                onClick={checkout}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+              >
+                Checkout
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default Cart;
