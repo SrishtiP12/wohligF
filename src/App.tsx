@@ -5,17 +5,20 @@ import Profile from "./components/Profile";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import Cart from "./components/Cart";
+import Shop from "./components/Shop";
+import Categories from "./components/Categories";
+import Contact from "./components/Contact";
 import 'react-toastify/dist/ReactToastify.css';
 import GoogleSuccess from "./components/GoogleSuccess";
 
 interface MainAppProps {
-  cartItems : any,
-  setCartItems :any,
-  user : any
+  cartItems: any[];
+  setCartItems: React.Dispatch<React.SetStateAction<any[]>>;
+  user: any;
 }
 
 
-const MainApp: React.FC <MainAppProps> = ({ cartItems, setCartItems, user }) => {
+const MainApp: React.FC<MainAppProps> = ({ cartItems, setCartItems, user }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<String>();
@@ -128,9 +131,9 @@ const MainApp: React.FC <MainAppProps> = ({ cartItems, setCartItems, user }) => 
         </div>
         <ul className="hidden md:flex space-x-10 text-gray-700 font-medium text-lg">
           <li><Link to="/" className="hover:text-green-700 transition">Home</Link></li>
-          <li><button type="button" className="hover:text-green-700 transition">Shop</button></li>
-          <li><button type="button" className="hover:text-green-700 transition">Categories</button></li>
-          <li><button type="button" className="hover:text-green-700 transition">Contact</button></li>
+          <li><Link to="/shop" className="hover:text-green-700 transition">Shop</Link></li>
+          <li><Link to="/categories" className="hover:text-green-700 transition">Categories</Link></li>
+          <li><Link to="/contact" className="hover:text-green-700 transition">Contact</Link></li>
         </ul>
         <div className="flex items-center gap-4">
           <Link to="/cart" className="relative">
@@ -154,12 +157,12 @@ const MainApp: React.FC <MainAppProps> = ({ cartItems, setCartItems, user }) => 
     <p className="text-lg md:text-xl text-[#1F3D2B] mb-8 max-w-md opacity-90">
       Dive into curated collections of timeless fashion and exclusive accessories — tailored just for you.
     </p>
-    <button
+    {/* <button
       className="bg-[#23472B] text-white px-10 py-4 rounded-xl shadow-lg font-bold text-lg hover:bg-[#1a3520] transition-all duration-300"
       style={{ boxShadow: '0 8px 24px 0 #23472B33' }}
     >
       EXPLORE NOW
-    </button>
+    </button> */}
   </div>
 
   {/* Right: Image in Card */}
@@ -378,7 +381,7 @@ const MainApp: React.FC <MainAppProps> = ({ cartItems, setCartItems, user }) => 
 }
 
 export default function App() {
-  const [cartItems, setCartItems] = useState([]);
+  const [cartItems, setCartItems] = useState<any[]>([]);
   const [user, setUser] = useState(null);
 
   // Effect to load user from localStorage on initial app load
@@ -410,6 +413,9 @@ export default function App() {
         <Route path="/cart" element={<Cart items={cartItems} setCartItems={setCartItems} />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/google/success" element={<GoogleSuccess/>} />
+        <Route path="/shop" element={<Shop cartItems={cartItems} setCartItems={setCartItems} />} />
+        <Route path="/categories" element={<Categories />} />
+        <Route path="/contact" element={<Contact />} />
       </Routes>
     </Router>
   );

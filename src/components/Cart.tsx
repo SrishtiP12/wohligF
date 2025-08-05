@@ -1,9 +1,14 @@
-import React, { useState } from "react";
-import StripeCheckoutWrapper from "./StripeCheckoutWrapper";
-import PropTypes from "prop-types";
-import axios from "axios";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import StripeCheckoutWrapper from './StripeCheckoutWrapper';
 
-export default function Cart({ items = [], setCartItems }) {
+interface CartProps {
+  items: any[];
+  setCartItems: React.Dispatch<React.SetStateAction<any[]>>;
+}
+
+const Cart: React.FC<CartProps> = ({ items, setCartItems }) => {
   const [showStripe, setShowStripe] = useState(true);
   const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
 
@@ -81,15 +86,4 @@ export default function Cart({ items = [], setCartItems }) {
   );
 }
 
-Cart.propTypes = {
-  items: PropTypes.arrayOf(
-    PropTypes.shape({
-      _id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      image: PropTypes.string.isRequired,
-      price: PropTypes.number.isRequired,
-      qty: PropTypes.number.isRequired,
-    })
-  ).isRequired,
-  setCartItems: PropTypes.func.isRequired,
-};
+export default Cart;
